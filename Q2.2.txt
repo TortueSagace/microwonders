@@ -1,0 +1,7 @@
+ movi 1, 0x0001
+    movi 2, 0x0002
+    movi 3, 0       // Initialize reg3 to 0 by default
+    bl   1, 2, isLess   // If reg1 < reg2, branch to isLess
+    beq  0, 0, end     // If not less, jump to end
+isLess:	addi 3, 0, 1    // Set reg3 to 1 to indicate reg1 < reg2
+end:	halt
