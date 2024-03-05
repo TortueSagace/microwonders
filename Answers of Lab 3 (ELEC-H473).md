@@ -38,7 +38,7 @@
 
 ## Question 2 - implementation of $<$
 
-We choose to implement the $<$ sign.
+We chose to implement the $<$ sign.
 ### 2.1 Using the original 8 instructions
 
 ```java
