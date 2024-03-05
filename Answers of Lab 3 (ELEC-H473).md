@@ -40,10 +40,8 @@
 ### 2.1 Using the original 8 instructions
 
 ```java
-// Logic: if r1 - r2 < 0, then r2 > r1 and r7 is set to 1 else r7 remains 0
-
-	movi 1,10 // r1 to arbitrary integer
-	movi 2,30 // r2 to arbitrary integer
+	movi 1,30 // r1 to arbitrary integer
+	movi 2,10 // r2 to arbitrary integer
 	sw 2,0,2
 	movi 3,32768 // r3 to 1000000000000000 to check msb
 	addi 4,0,16 // r4 as a counter
@@ -75,55 +73,54 @@ pos:	add 4,0,0
 ### 2.2 Using the special IS[1] 17-bits
 
 ```java
-// Initialize registers (assuming values are already loaded into reg1 and reg2)
-// reg3 is used to store the comparison result: 1 if reg1 < reg2, else 0
-
-    movi 1, 0x0001
+ movi 1, 0x0001
     movi 2, 0x0002
     movi 3, 0       // Initialize reg3 to 0 by default
     bl   1, 2, isLess   // If reg1 < reg2, branch to isLess
     beq  0, 0, end     // If not less, jump to end
-isLess: addi 3, 0, 1    // Set reg3 to 1 to indicate reg1 < reg2
-end: halt
+isLess:	addi 3, 0, 1    // Set reg3 to 1 to indicate reg1 < reg2
+end:	halt
 ```
 
 ## Question 3 - multiplication
 ### 3.1 - using IS[1]
 
 ```java
-    movi 1, 0x0002
-    movi 2, 0x0003
+  // Placeholder for initializing reg1 and reg2 with values
+    // Actual initialization should be done as per the specific requirements or context
+    MOVI 1, 20000 // Initialize reg3 (result LSB) to 0
+    MOVI 2, 4	 	
     // Initialize result registers to 0
     ADDI 3, 3, 0  // Initialize reg3 (result LSB) to 0
     ADDI 4, 4, 0  // Initialize reg4 (result MSB) to 0, assuming we manage overflow
-
+ 
     // Initialize loop counter (assuming 16-bit multiplication, thus 16 iterations)
     ADDI 5, 0, 16  // reg5 is the loop counter, initialized to 16
-
-multiply_loop: SHL 6, 2, -1  // Shift reg2 left by 15 (to the MSB), reg6 is a temporary register
-    SHA 6, 6, 15  // Arithmetic shift right by 15, moving MSB to LSB, preserving sign
-
+ 
+multiply_loop: SHIFTI 6, 2, -1 
+    SHIFTI 6, 6, 15  // Arithmetic shift right by 15, moving MSB to LSB, preserving sign
+ 
     // If LSB was 1, add reg1 to the result (reg3)
-    BEQ 6, 0, skip  // If reg6 is 0 (LSB of reg2 was 0), skip addition
+    BEQ 6, 0, skip // If reg6 is 0 (LSB of reg2 was 0), skip addition
     ADD 3, 3, reg1      // Add reg1 to reg3 (result)
-
+ 
     // Shift reg1 left by 1 (double it) for the next bit in reg2
-    SHL 1, 1, 1
-
+    SHIFTI 1, 1, 1
+ 
     // Prepare for the next iteration
-    SHL 2, 2, -1  // Logical shift reg2 right by 1
-
+    SHIFTI 2, 2, -1  // Logical shift reg2 right by 1
+ 
     // Decrement loop counter and loop if not done
     ADDI 5, 5, -1
     BEQ 5, 0, end_multiply  // If reg5 is 0, multiplication is done
     BEQ 0, 0, multiply_loop // Unconditional jump to next loop iteration
-
+ 
 skip: BEQ 0, 0, continue_loop  // Jump to continue loop if addition was skipped
-
+ 
 continue_loop: ADDI 5, 5, -1
     BEQ 5, 0, end_multiply  // Check if loop is done
     BEQ 0, 0, multiply_loop // Unconditional jump to next loop iteration
-
+ 
 end_multiply: halt
 ```
 ### 3.2 - using IS[2]
