@@ -1,5 +1,5 @@
 # Lab 3: Answers
-
+For this report, the operator $<$ was implemented. First, a set of test vectors is given to cover several possible corner cases. The operator is then implemented, first using IS[0] architecture, and then using Special IS[1] 17-bit architecture.
 ## Question 1 - creating test vectors
 
 ```java
