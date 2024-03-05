@@ -28,7 +28,6 @@ For this report, the operator $<$ was implemented. First, a set of test vectors 
 (0x7FFF, 0x8000) // 32767 < -32768
 (0x8000, 0x0000) // -32768 < 0
 (0x0000, 0x7FFF) // 0 < 32767
-(0x7FFF, 0x8000) // 32767 < -32768
 
 // Random Mid-Range Comparisons
 (0xCFC7, 0x3039) // -12345 < 12345
