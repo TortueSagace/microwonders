@@ -117,7 +117,7 @@ shift_overflow: ADD 5,1,0 // if there is shift overflow, store r1 back in r5
 	BEQ 0,0,nlsb2
 nso:	ADD 3,3,5,ad_overflow 
 	BEQ 0,0,nlsb2
-ad_overflow: ADD 4,4,1 // if adding r5 to r3 causes overflow, add carry to r4
+ad_overflow: ADDI 4,4,1 // if adding r5 to r3 causes overflow, add carry to r4
 nlsb2:	SHIFTI 2,2,-1 // shift r2 on the right
 	ADDI 7,7,1 // increase rank of r2's current lsb
    	BEQ 2,0,end // if r2 has been shifted to 0, end of the program
