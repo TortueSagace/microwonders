@@ -40,7 +40,7 @@
 ### 2.1 Using the original 8 instructions
 
 ```java
-// Logic: if r1 - r2 < 0, then r2 > r1
+// Logic: if r1 - r2 < 0, then r2 > r1 and r7 is set to 1 else r7 remains 0
 
 	movi 1,10 // r1 to arbitrary integer
 	movi 2,30 // r2 to arbitrary integer
