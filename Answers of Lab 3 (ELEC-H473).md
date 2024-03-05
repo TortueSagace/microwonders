@@ -86,42 +86,46 @@ end:	halt
 ### 3.1 - using IS[1]
 
 ```java
-  // Placeholder for initializing reg1 and reg2 with values
-    // Actual initialization should be done as per the specific requirements or context
-    MOVI 1, 20000 // Initialize reg3 (result LSB) to 0
-    MOVI 2, 4	 	
-    // Initialize result registers to 0
-    ADDI 3, 3, 0  // Initialize reg3 (result LSB) to 0
-    ADDI 4, 4, 0  // Initialize reg4 (result MSB) to 0, assuming we manage overflow
- 
+	MOVI 1,20000
+	MOVI 2,8
+ 	MOVI 3,0
+	MOVI 4,0
+	MOVI 5,0
+	MOVI 6,0
+	MOVI 7,0
     // Initialize loop counter (assuming 16-bit multiplication, thus 16 iterations)
-    ADDI 5, 0, 16  // reg5 is the loop counter, initialized to 16
- 
-multiply_loop: SHIFTI 6, 2, -1 
-    SHIFTI 6, 6, 15  // Arithmetic shift right by 15, moving MSB to LSB, preserving sign
- 
-    // If LSB was 1, add reg1 to the result (reg3)
-    BEQ 6, 0, skip // If reg6 is 0 (LSB of reg2 was 0), skip addition
-    ADD 3, 3, reg1      // Add reg1 to reg3 (result)
- 
-    // Shift reg1 left by 1 (double it) for the next bit in reg2
-    SHIFTI 1, 1, 1
- 
-    // Prepare for the next iteration
-    SHIFTI 2, 2, -1  // Logical shift reg2 right by 1
- 
-    // Decrement loop counter and loop if not done
-    ADDI 5, 5, -1
-    BEQ 5, 0, end_multiply  // If reg5 is 0, multiplication is done
-    BEQ 0, 0, multiply_loop // Unconditional jump to next loop iteration
- 
-skip: BEQ 0, 0, continue_loop  // Jump to continue loop if addition was skipped
- 
-continue_loop: ADDI 5, 5, -1
-    BEQ 5, 0, end_multiply  // Check if loop is done
-    BEQ 0, 0, multiply_loop // Unconditional jump to next loop iteration
- 
-end_multiply: halt
+	BEQ 1,0,end
+	BEQ 2,0,end
+	SW 2,0,2
+multiply_loop: ADDI 5,0,1  // set r5 to 00000000000000001
+	NAND 6, 2, 5 
+ 	NOR 6, 6, 0 		
+	BEQ 6,5,lsb2	 // check whether r2's LSB is 1	
+	BEQ 0,0,nlsb2
+lsb2:	ADD 5,1,0  // if r2's LSB is 1, store r1 in r5 and shift it left by the rank of r2's current lsb (0 -> 15)
+	SHA 5,5,7,shift_overflow // manages shift overflow
+	BEQ 0,0,nso // else go to nso; no shift overflow
+shift_overflow: ADD 5,1,0 // if there is shift overflow, store r1 back in r5
+	ADDI 6,0,16 //  r6 <- 16 - r7
+	SUB 6,6,7
+	SUB 6,0,6
+	SHA 6,5,6 // r6 <- r5 >> 16-r7  (store the overflowing bits in r6) 
+	ADD 4,4,6 // add the overflowing bits to r4
+	SHA 5,5,7 // reshift r5 after having managed the overflowed bits
+	ADD 3,3,5,ad_overflow // add r5 (shifted value of r1 of the current r2's LSB rank) to r3  
+	BEQ 0,0,nlsb2
+nso:	ADD 3,3,5,ad_overflow 
+	BEQ 0,0,nlsb2
+ad_overflow: ADD 4,4,1 // if adding r5 to r3 causes overflow, add carry to r4
+nlsb2:	SHIFTI 2,2,-1 // shift r2 on the right
+	ADDI 7,7,1 // increase rank of r2's current lsb
+   	BEQ 2,0,end // if r2 has been shifted to 0, end of the program
+	BEQ 0,0,multiply_loop // else, continue to add shifted values of r1 to r3
+end: 	LW 2,0,2 // clean results
+	MOVI 5,0
+	MOVI 6,0
+	MOVI 7,0
+	HALT
 ```
 ### 3.2 - using IS[2]
 ```java
