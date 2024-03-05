@@ -129,11 +129,13 @@ end: 	LW 2,0,2 // clean results
 ```
 ### 3.2 - using IS[2]
 ```java
-movi 1, 0x00012
+movi 1, 0xffff
 movi 2, 0x0003
 // Perform multiplication
-MUL 3, 1, 2
-// reg3:LSB, reg4:MSB of the result
+MUL 4, 1, 2
+SW 4,0,1
+ADD 4,3,0
+LW 3,0,1
 halt
 ```
 ### 3.3 - Conclusion
