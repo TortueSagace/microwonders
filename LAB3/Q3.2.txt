@@ -1,0 +1,8 @@
+movi 1, 0xffff
+movi 2, 0x0003
+// Perform multiplication
+MUL 4, 1, 2
+SW 4,0,1
+ADD 4,3,0
+LW 3,0,1
+halt
