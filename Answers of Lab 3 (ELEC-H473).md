@@ -131,14 +131,14 @@ end: 	LW 2,0,2 // clean results
 	HALT
 ```
 ### 3.2 - using IS[2]
-```java
 movi 1, 0xffff
 movi 2, 0x0003
 // Perform multiplication
-MUL 4, 1, 2
-SW 4,0,1
-ADD 4,3,0
-LW 3,0,1
+MUL 4, 1, 2 //Multiply reg1 and reg2 and store result in reg3 and reg4
+// Because the mul operator stores the LSB in reg4 and MSB in reg3, we need to switch the content of the two registers
+SW 4,0,1 // Store data of reg4
+ADD 4,3,0 // Set data of reg3 in reg4
+LW 3,0,1 // Load data of reg4 that was stored
 halt
 ```
 ### 3.3 - Conclusion
