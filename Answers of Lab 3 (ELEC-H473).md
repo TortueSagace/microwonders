@@ -133,6 +133,11 @@ end: 	LW 2,0,2 // clean results
 	MOVI 7,0
 	HALT
 ```
+
+![bugOlineTool](https://github.com/TortueSagace/microwonders/assets/99293212/d680fc29-747e-4018-a931-a534543146aa)
+
+
+
 ### 3.2 - using IS[2]
 ```java
 movi 1, 0xffff
