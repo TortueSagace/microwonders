@@ -1,7 +1,7 @@
 # Lab 3: Answers
 For this report, the operator $<$ was implemented. First, a set of test vectors is given to cover several possible corner cases. The operator is then implemented, first using IS[0] architecture, and then using Special IS[1] 17-bit architecture.
 ## Question 1 - creating test vectors
-Different test vectors are considered. The program of question 2.1 is seen to succeed in almost all cases except in those where the computation of (r1-r2) in two's complement arithmetic causes register overflow. This is because the program relies on the computation of (r1-r2) as an intermediary result.
+Different test vectors are considered. The program of question 2.1 is seen to succeed in almost all cases except in those where the computation of (r1-r2) in two's complement arithmetic causes register overflow: "r1-r2<-32768 or r1-r2>32767". This is because the program relies on the computation of (r1-r2) as an intermediary result.
 
 ```java
 // Zero Comparisons
