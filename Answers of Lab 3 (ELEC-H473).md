@@ -34,6 +34,7 @@ Different test vectors are considered. The program of question 2.1 is seen to su
 (0xCFC7, 0x3039) // -12345 < 12345
 (0x0929, 0xE577) // 2345 < -6789
 
+```
 
 ## Question 2 - implementation of $<$
 
