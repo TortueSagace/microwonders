@@ -131,6 +131,7 @@ end: 	LW 2,0,2 // clean results
 	HALT
 ```
 ### 3.2 - using IS[2]
+```java
 movi 1, 0xffff
 movi 2, 0x0003
 // Perform multiplication
