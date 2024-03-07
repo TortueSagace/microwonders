@@ -40,6 +40,8 @@ For this report, the operator $<$ was implemented. First, a set of test vectors 
 We chose to implement the $<$ sign.
 ### 2.1 Using the original 8 instructions
 
+Given two signed number in two's complement arithmetic r1 and r2, checking whether r1<r2 can be done by checking whether (r1-r2)<0. This is done by first transforming r2 in its negative, two's complement representation -r2 then adding it to r1 and finally checking whether the result is negative - i.e. whether its MSB is equal to 1 as are all negative numbers in two's complement. 
+
 ```java
 	movi 1,30 // r1 to arbitrary integer
 	movi 2,10 // r2 to arbitrary integer
