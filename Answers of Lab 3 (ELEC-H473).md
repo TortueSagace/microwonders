@@ -1,6 +1,7 @@
 # Lab 3: Answers
 For this report, the operator $<$ was implemented. First, a set of test vectors is given to cover several possible corner cases. The operator is then implemented, first using IS[0] architecture, and then using Special IS[1] 17-bit architecture.
 ## Question 1 - creating test vectors
+Different test vectors are 
 
 ```java
 // Zero Comparisons
@@ -33,7 +34,6 @@ For this report, the operator $<$ was implemented. First, a set of test vectors 
 (0xCFC7, 0x3039) // -12345 < 12345
 (0x0929, 0xE577) // 2345 < -6789
 
-```
 
 ## Question 2 - implementation of $<$
 
