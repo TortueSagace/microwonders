@@ -90,7 +90,7 @@ end:	halt
 
 ## Question 3 - multiplication
 ### 3.1 - using IS[1]
-Thanks to IS1's extended set of instructions and most noticeably its ability to shift registers as well as automatically branch when an overflow is detected, the multiplication can now be performed in linear time w.r.t. the operand's size as opposed to exponential time. Instead of decrementing one operand until it reaches zero while adding the other to the current value of the result register, the following program performs conventional binary multiplication.
+Thanks to IS1's extended set of instructions and most noticeably its ability to shift registers of a constant amount as well as automatically branch when an overflow is detected, the multiplication can now be performed in linear time w.r.t. the operand's size as opposed to exponential time. Instead of decrementing one operand until it reaches zero while adding the other to the current value of the result register, the following program performs conventional binary multiplication.
 
 ```java
 	MOVI 1,20000
