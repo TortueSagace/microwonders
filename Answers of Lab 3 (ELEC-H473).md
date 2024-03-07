@@ -60,15 +60,15 @@ msb:	add 2,2,2 // shift r2 on the left
 	addi 4,4,-1 // decrement the counter
 	addi 3,3,1 // r3 <- 10000000000000000
 	beq 4,0,end // if the counter is exhausted, end the program
-	beq 0,0,loop // 
-end:	addi 3,6,1 // -r2 stored in r3
+	beq 0,0,loop // else loop
+end:	addi 3,6,1 // store r6 containing -r2 in r3
 	add 3,1,3 // r3 <- (r1 - r2)
-	lw 2,0,2
+	lw 2,0,2 // reset r2's original value
 	movi 4,32768 // r4 to 1000000000000000 to check msb of difference btw r1 & r2
 	nand 5,4,3  // r5 <- nand(r3, 10000000000000000) checks whether r3's msb is 1
-	addi 4,4,-1
+	addi 4,4,-1 // r4 <- 01111111111111111
 	beq 5,4,neg // if r3's msb is 1, (r1 -r2) is negative & r1 < r2 => r7 <- 1
-	beq 0,0,pos // else r1 not < r2 and r7 remains 0
+	beq 0,0,pos // else not r1 < r2 and r7 remains 0
 neg:	addi 7,0,1
 pos:	add 4,0,0
 	add 5,0,0
