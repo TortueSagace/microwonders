@@ -134,7 +134,7 @@ end: 	LW 2,0,2 // clean results
 	HALT
 ```
 
-![bugOlineTool](https://github.com/TortueSagace/microwonders/assets/99293212/d680fc29-747e-4018-a931-a534543146aa)
+![bugOlineTool](https://github.com/TortueSagace/microwonders/assets/99293212/d680fc29-747e-4018-a931-a534543146aa The jar simulator (on the left) returns the right value but not the online verification tool (on the right).)
 
 
 
