@@ -49,16 +49,17 @@ Given two signed number in two's complement arithmetic r1 and r2, checking wheth
 	sw 2,0,2
 	movi 3,32768 // r3 to 1000000000000000 to check msb
 	addi 4,0,16 // r4 as a counter
-loop:	add 6,6,6 // loop to compute -r2 in two's complement notation: -r2 = (not r2)+1
-	nand 5,3,2 
-	addi 3,3,-1
-	beq 3,5,msb
-	addi 6,6,1
-msb:	add 2,2,2
-	addi 4,4,-1
-	addi 3,3,1
-	beq 4,0,end
-	beq 0,0,loop
+loop:	// loop to compute -r2 in two's complement notation: -r2 = (not r2)+1, stores it in r6
+	add 6,6,6 // shift r6 left
+	nand 5,3,2 // r5 <- nand(1000000000000000, r2)
+	addi 3,3,-1 // r3 <- 0111111111111111
+	beq 3,5,msb // if r3 = r5, r2's MSB is 1 
+	addi 6,6,1 // if r2's MSB is 0, write 1 in r6
+msb:	add 2,2,2 // shift r2 on the left
+	addi 4,4,-1 // decrement the counter
+	addi 3,3,1 // r3 <- 10000000000000000
+	beq 4,0,end // if the counter is exhausted, end the program
+	beq 0,0,loop // 
 end:	addi 3,6,1 // -r2 stored in r3
 	add 3,1,3 // r3 <- (r1 - r2)
 	lw 2,0,2
