@@ -134,9 +134,9 @@ end: 	LW 2,0,2 // clean results
 	MOVI 7,0
 	HALT
 ```
-This lengthy program is seen to generate good results on the "RiSC16_asmv1.4.4c.jar" simulator but not on the online verification tool of which we extracted the execution trace: 
+This lengthy program is seen to generate good results on the "RiSC16_asmv1.4.4c.jar" simulator but not on the online verification tool: 
 ![bugOlineTool](https://github.com/TortueSagace/microwonders/assets/99293212/d680fc29-747e-4018-a931-a534543146aa )
-The jar simulator on the left returns the right value but not the online verification tool on the right: for 1.9_mul exercise with the signed configuration, an overflow is incorrectly detected when shifting left 0x7fff << 1 = 0xfffe.
+The jar simulator execution trace on the left is compared with the online tool's on the right: for the 1.9_mul exercise with the signed configuration, an overflow is incorrectly detected when shifting left 0x7fff << 1 = 0xfffe. The online tool may be prone to errors that make its results diverge with those of the .jar simulator for the IS1 implementation of the RISC16.
 
 
 
