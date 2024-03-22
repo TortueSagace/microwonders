@@ -1,10 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
+#include "draft.h"
 
-int draft() {
+int draft(void) {
 
-    long length = 16;
+    int length = 16;
     char * inbuffer = (char*)malloc(length*sizeof(char));
     for (int i=0;i<16;i++) inbuffer[i] = 42;
     char * outbuffer = (char*)malloc(length*sizeof(char));
@@ -14,16 +12,16 @@ int draft() {
     printf("\n");
 
     __asm__(
-    "mov %[in], %%xmm0\n"
-    "mov %[out], %%xmm1\n"
-    "mov %[l], %%xmm2;\n"
-    "movdqu (%%xmm0), %%xmm7\n"
-    "movdqu %%xmm7, (%%xmm1)\n"
-    "add $16, %%xmm0\n"
-    "sub $16, %%xmm2\n"
+    "mov %[in], %%esi\n"
+    "mov %[out], %%eax\n"
+    "mov %[l], %%ecx;\n"
+    "movdqu (%%esi), %%xmm7\n"
+    "movdqu %%xmm7, (%%eax)\n"
+    "add $16, %%esi\n"
+    "sub $16, %%ecx\n"
     ://outputs
     :[in]"m" (inbuffer), [out]"m" (outbuffer), [l]"m" (length) //inputs
-    : "xmm1", "xmm0", "xmm2", "xmm7" //clobbers
+    : "eax", "esi", "ecx", "xmm7" //clobbers
     );
 
     // -- Print result:
