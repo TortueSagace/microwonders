@@ -7,7 +7,7 @@ int draft(void) {
     for (int i=0;i<16;i++) inbuffer[i] = 42;
     char * outbuffer = (char*)malloc(length*sizeof(char));
     // -- Print initial data:
-    printf("%p, %d\n",outbuffer, length);
+    printf("%x, %d\n",outbuffer, length);
     for (int i=0;i<16;i++) printf("%d ",outbuffer[i]);
     printf("\n");
 
@@ -15,6 +15,7 @@ int draft(void) {
     "mov %[in], %%esi\n"
     "mov %[out], %%eax\n"
     "mov %[l], %%ecx;\n"
+
     "movdqu (%%esi), %%xmm7\n"
     "movdqu %%xmm7, (%%eax)\n"
     "add $16, %%esi\n"
@@ -25,7 +26,7 @@ int draft(void) {
     );
 
     // -- Print result:
-    printf("%p, %d\n",outbuffer, length);
+    printf("%x, %d\n",outbuffer, length);
     for (int i=0;i<16;i++) printf("%d ",outbuffer[i]);
     printf("\n");
     return 0;
