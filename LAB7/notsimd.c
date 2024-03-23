@@ -5,13 +5,13 @@ int notsimd(char* filename, int width, int height){
     start = clock();
 
     int W=width, H=height; // Image size fixed (or from header)
-    unsigned char threshold = 128; // color threshold
-    unsigned char *src; // Pointers to arrays
-    unsigned char *dst;
+    signed char threshold = 0; // color threshold
+    signed char *src; // Pointers to arrays
+    signed char *dst;
 
     // Allocate memory
-    src = (unsigned char *) malloc (W*H*sizeof(unsigned char));
-    dst = (unsigned char *) malloc (W*H*sizeof(unsigned char));
+    src = (signed char *) malloc (W*H*sizeof(signed char));
+    dst = (signed char *) malloc (W*H*sizeof(signed char));
     // Check if enough memory
     if (src == NULL || dst == NULL) {
         printf ("Out of memory!");
@@ -63,7 +63,7 @@ int notsimd(char* filename, int width, int height){
     free(destFilename);
     free(suffix);
     end = clock();
-    float time = (float)(end - start)/CLOCKS_PER_SEC;
+    float time = (float)1e3*(end - start)/CLOCKS_PER_SEC; // time in milliseconds
     printf("Time spent: %f\n", time);
 
     return 0;

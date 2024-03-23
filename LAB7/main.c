@@ -7,8 +7,8 @@
 #include "notsimd.h"
 
 int main(void){
-    //notsimd("Angela_512x512.raw\0", 512,512);
+    notsimd("Quentin_512x512.raw\0", 512, 512);
     issimd("Quentin_512x512.raw\0", 512, 512);
-    //draft();
+    //int res = draft();
     return 0;
 }

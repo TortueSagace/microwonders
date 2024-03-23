@@ -5,15 +5,15 @@ int issimd(char* filename, int width, int height){
     start = clock();
 
     int W=width, H=height; // Image size fixed (or from header)
-    unsigned char *threshold; // color threshold
-    unsigned char *src; // Pointers to arrays
-    unsigned char *dst;
+    signed char *threshold; // color threshold
+    signed char *src; // Pointers to arrays
+    signed char *dst;
 
     // Allocate memory
-    src = (unsigned char *) malloc (W*H*sizeof(unsigned char));
-    dst = (unsigned char *) malloc (W*H*sizeof(unsigned char));
-    threshold = (unsigned char *) malloc (16*sizeof(unsigned char));
-    for(int i=0; i<16; i++) *(threshold+i) = 127;
+    src = (signed char *) malloc (W*H*sizeof(signed char));
+    dst = (signed char *) malloc (W*H*sizeof(signed char));
+    threshold = (signed char *) malloc (17*sizeof(signed char));
+    for(int i=0; i<16; i++) *(threshold+i) = 0;
     // Check if enough memory
     if (src == NULL || dst == NULL) {
         printf ("Out of memory!");
@@ -23,7 +23,7 @@ int issimd(char* filename, int width, int height){
 
     FILE *fp1 = fopen(filename,"r");
     if (fp1 != NULL) { // read only if file opened
-    fread(src, sizeof(unsigned char), W*H, fp1);
+    fread(src, sizeof(signed char), W*H, fp1);
     fclose(fp1);} // we close the file
     else {
         printf("Can’t open specified file!");
@@ -49,7 +49,7 @@ int issimd(char* filename, int width, int height){
     "movdqu %%xmm0, (%%edx)\n"
     "add $16, %%ebx\n"
     "add $16, %%edx\n"
-    "dec %%ecx\n"
+    "sub $1, %%ecx\n"
     "jnz 1b\n"
     "end:\n"
     : // No outputs
@@ -83,7 +83,7 @@ int issimd(char* filename, int width, int height){
     free(destFilename);
     free(suffix);
     end = clock();
-    float time = (float)(end - start)/CLOCKS_PER_SEC;
+    float time = (float)1e3*(end - start)/CLOCKS_PER_SEC; //time in milliseconds
     printf("Time spent: %f\n", time);
 
     return 0;
