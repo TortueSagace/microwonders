@@ -1,4 +1,4 @@
-#include "notsimd.h"
+#include "header.h"
 
 int notsimd(char* filename, int width, int height){
     clock_t start, end;
@@ -24,7 +24,7 @@ int notsimd(char* filename, int width, int height){
     fread(src, sizeof(unsigned char), W*H, fp1);
     fclose(fp1);} // we close the file
     else {
-        printf("Can’t open specified file!");
+        printf("Canâ€™t open specified file!");
         free(src);
         exit(1);
     }
@@ -53,7 +53,7 @@ int notsimd(char* filename, int width, int height){
         fwrite(dst, sizeof(unsigned char), W*H, fp2);
         fclose(fp2);} // we close the file
     else {
-        printf("Can’t open specified file!");
+        printf("Canâ€™t open specified file!");
         free(dst);
         exit(1);
     }
