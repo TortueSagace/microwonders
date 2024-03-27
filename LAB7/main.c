@@ -2,9 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "issimd.h"
-#include "draft.h"
-#include "notsimd.h"
+#include "header.h"
 
 int main(void){
     notsimd("Quentin_512x512.raw\0", 512, 512);
