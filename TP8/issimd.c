@@ -3,17 +3,15 @@
 int issimd(char* filename, int width, int height){
     clock_t start, end;
     start = clock();
-
+    
     int W=width, H=height; // Image size fixed (or from header)
-    signed char *threshold; // color threshold
     signed char *src; // Pointers to arrays
     signed char *dst;
 
     // Allocate memory
     src = (signed char *) malloc (W*H*sizeof(signed char));
     dst = (signed char *) malloc (W*H*sizeof(signed char));
-    threshold = (signed char *) malloc (17*sizeof(signed char));
-    for(int i=0; i<16; i++) *(threshold+i) = 0;
+    W = ( int ) malloc (sizeof(int));
     // Check if enough memory
     if (src == NULL || dst == NULL) {
         printf ("Out of memory!");
@@ -30,32 +28,51 @@ int issimd(char* filename, int width, int height){
         free(src);
         exit(1);
     }
+   
+    int ii=(H*(W-2)-2)/16; // Set the counter
 
-    int ii=H*W/16; // Set the counter
+__asm__(
+    "mov %[in], %%rbx\n"        // datain ptr of the line
+    "mov %[l], %%ecx\n"         // counter
+    "mov %[out], %%rdx\n"       // dataout pointer
+    "mov %[width], %%eax\n"
+    "l1:\n"
+    "movdqu (%%rbx), %%xmm0\n"               // l1st line max
+    "movdqu 512+%[in], %%xmm1\n"      // 2nd line max
+    "movdqu 1024+%[in], %%xmm2\n"  // 3rd line max
+    "pmaxub %%xmm1, %%xmm0\n"               // compare max
+    "pmaxub %%xmm2, %%xmm0\n"
 
+    "movdqu (%%rbx), %%xmm3\n"               // l1st line min
+    "movdqu 512+%[in], %%xmm4\n"      // 2nd line min
+    "movdqu 1024+%[in], %%xmm5\n"  // 3rd line min
+    "pminub %%xmm4, %%xmm3\n"               // compare min
+    "pminub %%xmm5, %%xmm3\n"
 
-    __asm__(
-    "mov %[in], %%ebx\n"
-    "mov %[out], %%edx\n"
-    "mov %[mask], %%eax\n"
-    "mov %[l], %%ecx\n" // Removed semicolon
+    "movdqu %%xmm0, %%xmm6\n" // copy max
+    "movdqu %%xmm0, %%xmm7\n"
+    "psrldq $1, %%xmm6\n" // shift max
+    "psrldq $2, %%xmm7\n"
+    "pmaxub %%xmm7, %%xmm6\n" // colon max
+    "pmaxub %%xmm0, %%xmm6\n"
 
-    "test %%ecx, %%ecx\n"
-    "je end\n"
-    "1:\n"
-    "movdqu (%%ebx), %%xmm0\n"
-    "movdqu (%%eax), %%xmm7\n"
-    "pcmpgtb %%xmm7, %%xmm0\n"
-    "movdqu %%xmm0, (%%edx)\n"
-    "add $16, %%ebx\n"
-    "add $16, %%edx\n"
+    "movdqu %%xmm3, %%xmm8\n" // copy min
+    "movdqu %%xmm3, %%xmm9\n"
+    "psrldq $1, %%xmm8\n" // shift min
+    "psrldq $2, %%xmm9\n"
+    "pminub %%xmm9, %%xmm8\n" // colon min
+    "pminub %%xmm3, %%xmm8\n"
+
+    "psubsb %%xmm8, %%xmm6\n"
+    "movdqu %%xmm6, (%%rdx)\n"
+    "add $16, %%rbx\n"
+    "add $16, %%rdx\n"
     "sub $1, %%ecx\n"
-    "jnz 1b\n"
-    "end:\n"
+    "jnz l1\n"
     : // No outputs
-    : [mask] "m" (threshold), [in] "m" (src), [out] "m" (dst), [l] "r" (ii) // Use "r" for loop counter to allow register usage
-    : "eax", "ebx", "edx", "ecx", "xmm0", "xmm7", "memory" // Added "edi" to clobbers
-    );
+    : [in] "m" (src), [out] "m" (dst), [width] "m" (W), [l] "r" (ii) // Use "r" for loop counter to allow register usage
+    : "rax", "rbx", "rdx", "rcx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5", "xmm8", "xmm9" // Added "memory" to clobbers
+);
 
     char *prefix = (char *) malloc((strlen(filename)-4+1)*sizeof(char));
     for(int i=0; i<(strlen(filename)-4+1); i++){
