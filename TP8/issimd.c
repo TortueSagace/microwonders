@@ -3,7 +3,7 @@
 int issimd(char* filename, int width, int height){
     clock_t start, end;
     start = clock();
-    
+
     int W=width, H=height; // Image size fixed (or from header)
     signed char *src; // Pointers to arrays
     signed char *dst;
@@ -11,7 +11,7 @@ int issimd(char* filename, int width, int height){
     // Allocate memory
     src = (signed char *) malloc (W*H*sizeof(signed char));
     dst = (signed char *) malloc (W*H*sizeof(signed char));
-    W = ( int ) malloc (sizeof(int));
+    //W = ( int ) malloc (sizeof(int));
     // Check if enough memory
     if (src == NULL || dst == NULL) {
         printf ("Out of memory!");
@@ -28,22 +28,24 @@ int issimd(char* filename, int width, int height){
         free(src);
         exit(1);
     }
-   
+
     int ii=(H*(W-2)-2)/16; // Set the counter
 
+    printf("%d", ii);
+
 __asm__(
-    "mov %[in], %%rbx\n"        // datain ptr of the line
+    "mov %[in], %%ebx\n"        // data in ptr of the line
     "mov %[l], %%ecx\n"         // counter
-    "mov %[out], %%rdx\n"       // dataout pointer
+    "mov %[out], %%edx\n"       // data out pointer
     "mov %[width], %%eax\n"
     "l1:\n"
-    "movdqu (%%rbx), %%xmm0\n"               // l1st line max
+    "movdqu (%%ebx), %%xmm0\n"               // l1st line max
     "movdqu 512+%[in], %%xmm1\n"      // 2nd line max
     "movdqu 1024+%[in], %%xmm2\n"  // 3rd line max
     "pmaxub %%xmm1, %%xmm0\n"               // compare max
     "pmaxub %%xmm2, %%xmm0\n"
 
-    "movdqu (%%rbx), %%xmm3\n"               // l1st line min
+    "movdqu (%%ebx), %%xmm3\n"               // l1st line min
     "movdqu 512+%[in], %%xmm4\n"      // 2nd line min
     "movdqu 1024+%[in], %%xmm5\n"  // 3rd line min
     "pminub %%xmm4, %%xmm3\n"               // compare min
@@ -56,22 +58,22 @@ __asm__(
     "pmaxub %%xmm7, %%xmm6\n" // colon max
     "pmaxub %%xmm0, %%xmm6\n"
 
-    "movdqu %%xmm3, %%xmm8\n" // copy min
-    "movdqu %%xmm3, %%xmm9\n"
-    "psrldq $1, %%xmm8\n" // shift min
-    "psrldq $2, %%xmm9\n"
-    "pminub %%xmm9, %%xmm8\n" // colon min
-    "pminub %%xmm3, %%xmm8\n"
+    "movdqu %%xmm3, %%xmm1\n" // copy min
+    "movdqu %%xmm3, %%xmm2\n"
+    "psrldq $1, %%xmm1\n" // shift min
+    "psrldq $2, %%xmm2\n"
+    "pminub %%xmm2, %%xmm1\n" // colon min
+    "pminub %%xmm3, %%xmm1\n"
 
-    "psubsb %%xmm8, %%xmm6\n"
-    "movdqu %%xmm6, (%%rdx)\n"
-    "add $16, %%rbx\n"
-    "add $16, %%rdx\n"
+    "psubsb %%xmm1, %%xmm6\n"
+    "movdqu %%xmm6, (%%edx)\n"
+    "add $16, %%ebx\n"
+    "add $16, %%edx\n"
     "sub $1, %%ecx\n"
     "jnz l1\n"
     : // No outputs
     : [in] "m" (src), [out] "m" (dst), [width] "m" (W), [l] "r" (ii) // Use "r" for loop counter to allow register usage
-    : "rax", "rbx", "rdx", "rcx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5", "xmm8", "xmm9" // Added "memory" to clobbers
+    : "eax", "ebx", "edx", "ecx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5" // Added "memory" to clobbers
 );
 
     char *prefix = (char *) malloc((strlen(filename)-4+1)*sizeof(char));
@@ -104,4 +106,3 @@ __asm__(
 
     return 0;
 }
-
