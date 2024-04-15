@@ -1,17 +1,17 @@
 #include "header.h"
 
-int notsimd(char* filename, int width, int height){
+int issimd(char* filename, int width, int height){
     clock_t start, end;
     start = clock();
 
     int W=width, H=height; // Image size fixed (or from header)
-    signed char threshold = 0; // color threshold
     signed char *src; // Pointers to arrays
     signed char *dst;
 
     // Allocate memory
     src = (signed char *) malloc (W*H*sizeof(signed char));
     dst = (signed char *) malloc (W*H*sizeof(signed char));
+    W = ( int ) malloc (sizeof(int));
     // Check if enough memory
     if (src == NULL || dst == NULL) {
         printf ("Out of memory!");
@@ -21,7 +21,7 @@ int notsimd(char* filename, int width, int height){
 
     FILE *fp1 = fopen(filename,"r");
     if (fp1 != NULL) { // read only if file opened
-    fread(src, sizeof(unsigned char), W*H, fp1);
+    fread(src, sizeof(signed char), W*H, fp1);
     fclose(fp1);} // we close the file
     else {
         printf("Can’t open specified file!");
@@ -29,9 +29,50 @@ int notsimd(char* filename, int width, int height){
         exit(1);
     }
 
-    // Calling the contour exctraction function
-    dst = contourExtraction(src,W,H);
+    int ii=(H*(W-2)-2)/16; // Set the counter
 
+__asm__(
+    "mov %[in], %%ebx\n"        // datain ptr of the line
+    "mov %[l], %%ecx\n"         // counter
+    "mov %[out], %%edx\n"       // dataout pointer
+    "mov %[width], %%eax\n"
+    "l1:\n"
+    "movdqu (%%ebx), %%xmm0\n"               // l1st line max
+    "movdqu 512+%[in], %%xmm1\n"      // 2nd line max
+    "movdqu 1024+%[in], %%xmm2\n"  // 3rd line max
+    "pmaxub %%xmm1, %%xmm0\n"               // compare max
+    "pmaxub %%xmm2, %%xmm0\n"
+
+    "movdqu (%%ebx), %%xmm3\n"               // l1st line min
+    "movdqu 512+%[in], %%xmm4\n"      // 2nd line min
+    "movdqu 1024+%[in], %%xmm5\n"  // 3rd line min
+    "pminub %%xmm4, %%xmm3\n"               // compare min
+    "pminub %%xmm5, %%xmm3\n"
+
+    "movdqu %%xmm0, %%xmm6\n" // copy max
+    "movdqu %%xmm0, %%xmm7\n"
+    "psrldq $1, %%xmm6\n" // shift max
+    "psrldq $2, %%xmm7\n"
+    "pmaxub %%xmm7, %%xmm6\n" // colon max
+    "pmaxub %%xmm0, %%xmm6\n"
+
+    "movdqu %%xmm3, %%xmm1\n" // copy min
+    "movdqu %%xmm3, %%xmm2\n"
+    "psrldq $1, %%xmm1\n" // shift min
+    "psrldq $2, %%xmm2\n"
+    "pminub %%xmm2, %%xmm1\n" // colon min
+    "pminub %%xmm3, %%xmm1\n"
+
+    "psubsb %%xmm1, %%xmm6\n"
+    "movdqu %%xmm6, (%%edx)\n"
+    "add $16, %%ebx\n"
+    "add $16, %%edx\n"
+    "sub $1, %%ecx\n"
+    "jnz l1\n"
+    : // No outputs
+    : [in] "m" (src), [out] "m" (dst), [width] "m" (W), [l] "r" (ii) // Use "r" for loop counter to allow register usage
+    : "eax", "ebx", "edx", "ecx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5" // Added "memory" to clobbers
+);
 
     char *prefix = (char *) malloc((strlen(filename)-4+1)*sizeof(char));
     for(int i=0; i<(strlen(filename)-4+1); i++){
@@ -39,8 +80,8 @@ int notsimd(char* filename, int width, int height){
             if(i==(strlen(filename)-4)) *(prefix+i)='\0';
     }
 
-    char *suffix = "out_C.raw";
-    char *destFilename = (char *) malloc((strlen(prefix)+10)*sizeof(char));
+    char *suffix = "out_SIMD.raw";
+    char *destFilename = (char *) malloc((strlen(prefix)+13)*sizeof(char));
     strcpy(destFilename,prefix);
     strcat(destFilename,suffix);
 
@@ -58,30 +99,8 @@ int notsimd(char* filename, int width, int height){
     free(dst);
     free(destFilename);
     end = clock();
-    float time = (float)1e3*(end - start)/CLOCKS_PER_SEC; // time in milliseconds
+    float time = (float)1e3*(end - start)/CLOCKS_PER_SEC; //time in milliseconds
     printf("Time spent: %f\n", time);
 
     return 0;
-}
-
-char* contourExtraction(char* src,int width, int height){
-    unsigned char *dst;
-    unsigned char min;
-    unsigned char max;
-    dst = (unsigned char*) malloc (width*height*sizeof(unsigned char));
-    for(int i=0; i<width*height; i++){
-        if(i<width || i>width*(height-1) || i%width == 0 || i%width == width - 1){ //Is the pixel on the border of the image ?
-            *(dst+i)=0; 
-        } else { // If not: we can implement the min/max filtering
-            unsigned char list[] = {*(src+i-width-1),*(src+i-width),*(src+i-width+1),*(src+i-1),*(src+i),*(src+i+1),*(src+i+width-1),*(src+i+width),*(src+i+width+1)};
-            min = list[0];
-            max = list[0];
-            for (int j = 0; j < 9; j++){
-                if (list[j]<min) min = list[j];
-                if (list[j]>max) max = list[j];
-            }
-            *(dst+i)=max-min;   
-        }
-    }
-    return dst;
 }
