@@ -8,6 +8,10 @@ int issimd(char* filename, int width, int height){
     signed char *src; // Pointers to arrays
     signed char *dst;
 
+    int ii= (int) ((H-(3-1)*W))/16; // Set the counter
+
+    printf("%d \n", ii);
+
     // Allocate memory
     src = (signed char *) malloc (W*H*sizeof(signed char));
     dst = (signed char *) malloc (W*H*sizeof(signed char));
@@ -24,53 +28,28 @@ int issimd(char* filename, int width, int height){
     fread(src, sizeof(signed char), W*H, fp1);
     fclose(fp1);} // we close the file
     else {
-        printf("Can’t open specified file!");
+        printf("Can�t open specified file!");
         free(src);
         exit(1);
     }
-
-    int ii=(H*(W-2)-2)/16; // Set the counter
-
-    printf("%d", ii);
 
 __asm__(
     "mov %[in], %%ebx\n"        // data in ptr of the line
     "mov %[l], %%ecx\n"         // counter
     "mov %[out], %%edx\n"       // data out pointer
     "mov %[width], %%eax\n"
-    "l1:\n"
-    "movdqu (%%ebx), %%xmm0\n"               // l1st line max
-    "movdqu 512+%[in], %%xmm1\n"      // 2nd line max
-    "movdqu 1024+%[in], %%xmm2\n"  // 3rd line max
-    "pmaxub %%xmm1, %%xmm0\n"               // compare max
-    "pmaxub %%xmm2, %%xmm0\n"
 
-    "movdqu (%%ebx), %%xmm3\n"               // l1st line min
-    "movdqu 512+%[in], %%xmm4\n"      // 2nd line min
-    "movdqu 1024+%[in], %%xmm5\n"  // 3rd line min
-    "pminub %%xmm4, %%xmm3\n"               // compare min
-    "pminub %%xmm5, %%xmm3\n"
-
-    "movdqu %%xmm0, %%xmm6\n" // copy max
-    "movdqu %%xmm0, %%xmm7\n"
-    "psrldq $1, %%xmm6\n" // shift max
-    "psrldq $2, %%xmm7\n"
-    "pmaxub %%xmm7, %%xmm6\n" // colon max
-    "pmaxub %%xmm0, %%xmm6\n"
-
-    "movdqu %%xmm3, %%xmm1\n" // copy min
-    "movdqu %%xmm3, %%xmm2\n"
-    "psrldq $1, %%xmm1\n" // shift min
-    "psrldq $2, %%xmm2\n"
-    "pminub %%xmm2, %%xmm1\n" // colon min
-    "pminub %%xmm3, %%xmm1\n"
-
-    "psubsb %%xmm1, %%xmm6\n"
-    "movdqu %%xmm6, (%%edx)\n"
+    "test %%ecx, %%ecx\n"
+    "je end\n"
+    "1:\n"
+    "movdqu (%%ebx), %%xmm0\n"
+    "movdqu %%xmm0, (%%edx)\n"
     "add $16, %%ebx\n"
     "add $16, %%edx\n"
     "sub $1, %%ecx\n"
-    "jnz l1\n"
+    "jnz 1b\n"
+    "end:\n"
+
     : // No outputs
     : [in] "m" (src), [out] "m" (dst), [width] "m" (W), [l] "r" (ii) // Use "r" for loop counter to allow register usage
     : "eax", "ebx", "edx", "ecx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5" // Added "memory" to clobbers
@@ -89,10 +68,10 @@ __asm__(
 
     FILE *fp2 = fopen(destFilename,"wb");
     if (fp2 != NULL) { // read only if file opened
-        fwrite(dst, sizeof(unsigned char), W*H, fp2);
+        fwrite(dst, sizeof(signed char), W*H, fp2);
         fclose(fp2);} // we close the file
     else {
-        printf("Can’t open specified file!");
+        printf("Can�t open specified file!");
         free(dst);
         exit(1);
     }
@@ -106,3 +85,4 @@ __asm__(
 
     return 0;
 }
+
