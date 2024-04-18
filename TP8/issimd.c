@@ -40,8 +40,6 @@ int issimd(char* filename, int width, int height, int kernelSize){
 
     int ii= (int) ((H-(kernelSize-1))*W)/(16-(kernelSize-1)); // Set the counter
 
-    printf("%d \n", ii);
-
     switch(kernelSize){
         case(3):
             assembly3(W, ii, src, dst);
@@ -80,7 +78,7 @@ int issimd(char* filename, int width, int height, int kernelSize){
     free(destFilename);
     end = clock();
     float time = (float)1e3*(end - start)/CLOCKS_PER_SEC; //time in milliseconds
-    printf("Time spent: %f\n", time);
+    printf("Time spent with SIMD code : %f\n", time);
 
     return 0;
 }
@@ -324,4 +322,3 @@ __asm__(
     : "eax", "ebx", "edx", "ecx", "memory", "xmm0", "xmm1", "xmm2", "xmm6", "xmm7", "xmm3", "xmm4", "xmm5" // Added "memory" to clobbers
 );
 }
-

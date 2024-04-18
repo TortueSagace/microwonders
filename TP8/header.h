@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-int notsimd(char* filename, int width, int height);
+int notsimd(char* filename, int width, int height, int kernelSize);
 int issimd(char* filename, int width, int height, int kernelSize);
 
-char* contourExtraction(char* src,int width, int height);
+unsigned char* contourExtraction(char* src,int width, int height, int kernel);
